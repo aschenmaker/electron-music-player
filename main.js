@@ -1,28 +1,49 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 // 封装一个窗口类
 
-app.on('ready', () => {
-	console.log('ready');
-	const mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
-		webPreferences: {
-			nodeIntegration: true
-		}
-	});
-	mainWindow.loadFile('./renderer/index.html');
-
-	ipcMain.on('addMusic', () => {
-		console.log('hello');
-		const addMusicWindow = new BrowserWindow({
-			width: 400,
-			height: 300,
+class AppWindow extends BrowserWindow {
+	constructor(config, flieLocation) {
+		const basicConfig = {
+			width: 800,
+			height: 600,
 			webPreferences: {
 				nodeIntegration: true
-			},
-			parent: mainWindow
+			}
+		};
+		// const finalConfig = Object.assign(basicConfig,config);
+		const finalConfig = { ...basicConfig, ...config };
+		super(finalConfig);
+		this.loadFile(flieLocation);
+		this.once('ready-to-show', () => {
+			this.show();
 		});
-		addMusicWindow.loadFile('./renderer/add.html');
+	}
+}
+
+app.on('ready', () => {
+	console.log('ready');
+	const mainWindow = new AppWindow({}, './renderer/index.html');
+	// 监听ipc
+	ipcMain.on('addMusic', () => {
+		const addMusicWindow = new AppWindow(
+			{
+				width: 500,
+				height: 400,
+				parent: mainWindow
+			},
+			'./renderer/add.html'
+		);
+		ipcMain.on('openMusicFile', () => {
+			console.log('openfile---');
+			dialog
+				.showOpenDialog({
+					properties: [ 'openFile', 'multiSelections' ],
+					filters: [ { name: 'Music', extensions: [ 'mp3' ] } ]
+				})
+				.then((res) => {
+					console.log(res);
+				});
+		});
 	});
 });
