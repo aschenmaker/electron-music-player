@@ -34,15 +34,17 @@ app.on('ready', () => {
 			},
 			'./renderer/add.html'
 		);
-		ipcMain.on('openMusicFile', () => {
-			console.log('openfile---');
+		ipcMain.on('openMusicFile', (event) => {
 			dialog
 				.showOpenDialog({
 					properties: [ 'openFile', 'multiSelections' ],
 					filters: [ { name: 'Music', extensions: [ 'mp3' ] } ]
 				})
 				.then((res) => {
-					console.log(res);
+					if (!res.canceled) {
+						console.log(res.filePaths);
+						event.sender.send('has-choosed-file', res.filePaths);
+					}
 				});
 		});
 	});
