@@ -4,7 +4,9 @@ const path = require('path');
 $('choose-music').addEventListener('click', () => {
 	ipcRenderer.send('openMusicFile');
 });
-
+$('add-music').addEventListener('click', () => {
+	ipcRenderer.send('addTracks', musicFilesPath);
+});
 const musicFileRender = (pathes) => {
 	const musicList = $('musicList');
 	const musicItemsHTML = pathes.reduce((html, music) => {

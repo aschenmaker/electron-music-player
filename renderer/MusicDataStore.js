@@ -1,5 +1,5 @@
 const Store = require('electron-store');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 class DataStore extends Store {
 	constructor(settings) {
@@ -27,6 +27,11 @@ class DataStore extends Store {
 				return currentTracksPath.indexOf(track.path) < 0;
 			});
 		this.tracks = [ ...this.tracks, ...trackWithProps ];
+		return this.saveTracks();
+	}
+	deleteTracks(deleteId) {
+		console.log('delete~');
+		this.tracks = this.tracks.filter((item) => item.id != deleteId);
 		return this.saveTracks();
 	}
 }
